@@ -1,8 +1,42 @@
 
-function Seguro (marca,año,tipo){
+function Seguro (marca,year,tipo){
     this.marca = marca
-    this.año = año
+    this.year = year
     this.tipo = tipo
+}
+
+Seguro.prototype.cotizarSeguro = function (){
+
+    let cantidad;
+    const base = 2000;
+
+    switch(this.marca){
+
+        case '1':
+            cantidad = base * 1.15;
+            break
+        case '2':
+            cantidad = base * 1.05;
+            break
+        case '3':
+            cantidad = base * 1.35;
+            break
+        default:
+            break;
+    }
+
+    const diferencia = new Date().getFullYear() - this.year
+
+    cantidad -= ((diferencia * 3)* cantidad) / 100
+
+    if(this.tipo === 'basico'){
+        cantidad *= 1.30
+    }else{
+        cantidad *= 1.50
+    }
+
+   return cantidad
+   
 }
 
 function userInterface (){
@@ -49,9 +83,30 @@ userInterface.prototype.mostrarMensaje =  (mensaje,tipo) => {
 
 }
 
-const ui = new userInterface()
+userInterface.prototype.mostrarResultado = (total,seguro) => {
 
-console.log(ui)
+    const div = document.createElement('div')
+    div.classList.add('mt-10')
+
+    div.innerHTML = `
+        <p class = "header">Tu resumen </p>
+        <p class = "font-bold"> Total: $ ${total} </p>
+    `
+
+    const resultadoDiv = document.querySelector('#resultado')
+   
+
+    const spinner = document.querySelector('#cargando')
+    spinner.style.display = 'block'
+
+    setTimeout(() => {
+        spinner.style.display = 'none'
+        resultadoDiv.appendChild(div)
+    }, 3000);
+}
+
+
+const ui = new userInterface()
 
 document.addEventListener('DOMContentLoaded', () =>{
     ui.llenarOpciones();
@@ -89,4 +144,14 @@ function cotizarSeguro(e){
 
     ui.mostrarMensaje('Cotizando', 'exito')
 
+    const resultados = document.querySelector('#resultado div')
+    if(resultados != null){
+        resultados.remove()
+    }
+
+    const seguro = new Seguro(marca,year,tipo)
+    const total = seguro.cotizarSeguro();
+
+    ui.mostrarResultado(total,seguro)
 }
+
